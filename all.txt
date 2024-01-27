@@ -1,0 +1,229 @@
+--1) Выведите все имена авторов из таблицы Authors.
+/* SELECT author_name FROM Authors */
+--2) Покажите названия всех книг и соответствующих им авторов.
+/* SELECT Books.book_title, Authors.author_name
+FROM Books
+JOIN Authors ON Books.author_id = Authors.author_id;
+ */
+--3) Найдите все книги в жанре "Фэнтези" из таблицы Genres.
+/* SELECT Books.book_title
+FROM Books
+JOIN BookGenres ON Books.book_id = BookGenres.book_id
+JOIN Genres ON BookGenres.genre_id = Genres.genre_id
+WHERE Genres.genre_name = 'Fantasy'; */
+--4) Выведите имена всех читателей из таблицы Readers.
+/* SELECT reader_id, reader_name FROM Readers */
+--5) Покажите все книги, которые прочитал читатель с именем "Alice Johnson".
+/* SELECT Books.book_title
+FROM Books
+JOIN ReaderBooks ON Books.book_id = ReaderBooks.book_id
+JOIN Readers ON ReaderBooks.reader_id = Readers.reader_id
+WHERE Readers.reader_name = 'Alice Johnson'; */
+
+--6) Найдите всех авторов, написавших хотя бы две книги.
+/* SELECT author_name
+FROM Authors
+WHERE author_id IN (
+    SELECT author_id
+    FROM Books
+    GROUP BY author_id
+    WHERE COUNT(book_id) >= 2
+);
+ */
+
+--7) Выведите жанры всех книг с их количеством в базе данных.
+/* SELECT Genres.genre_name, COUNT(BookGenres.book_id) AS book_count
+FROM Genres
+LEFT JOIN BookGenres ON Genres.genre_id = BookGenres.genre_id
+GROUP BY Genres.genre_id, Genres.genre_name;
+ */
+--8) Покажите все книги, написанные автором с именем "Jane Doe".
+/* SELECT Books.book_title, Authors.author_name
+FROM Books
+JOIN Authors ON Books.author_id = Authors.author_id
+WHERE Authors.author_name = 'Jane Doe'; */
+
+--9) Найдите читателя, который прочитал наибольшее количество книг.
+/* SELECT Readers.reader_name
+FROM Readers
+JOIN ReaderBooks ON Readers.reader_id = ReaderBooks.reader_id
+GROUP BY Readers.reader_id, Readers.reader_name
+ORDER BY COUNT(ReaderBooks.book_id) DESC
+LIMIT 1;
+ */
+--10) Выведите имена авторов и количество книг, написанных каждым из них.
+/* SELECT Authors.author_name, COUNT(Books.book_id) AS book_count
+FROM Authors
+LEFT JOIN Books ON Authors.author_id = Books.author_id
+GROUP BY Authors.author_id, Authors.author_name; */
+
+--11) Найдите все книги в жанре "Научная фантастика", написанные автором с именем "Michael Johnson".
+/* SELECT Books.book_title
+FROM Books
+JOIN BookGenres ON Books.book_id = BookGenres.book_id
+JOIN Genres ON BookGenres.genre_id = Genres.genre_id
+JOIN Authors ON Books.author_id = Authors.author_id
+WHERE Genres.genre_name = 'Science Fiction' AND Authors.author_name = 'Michael Johnson';
+ */
+--12) Покажите все книги, которые не были прочитаны ни одним читателем.
+/*  SELECT Books.book_title
+FROM Books
+LEFT JOIN ReaderBooks ON Books.book_id = ReaderBooks.book_id
+WHERE ReaderBooks.reader_id IS NULL; */
+
+
+--13) Выведите читателей, которые прочитали книги в жанре "Мистика".
+/* SELECT DISTINCT Readers.reader_name
+FROM Readers
+JOIN ReaderBooks ON Readers.reader_id = ReaderBooks.reader_id
+JOIN Books ON ReaderBooks.book_id = Books.book_id
+JOIN BookGenres ON Books.book_id = BookGenres.book_id
+JOIN Genres ON BookGenres.genre_id = Genres.genre_id
+WHERE Genres.genre_name = 'Mystery'; */
+
+--14) Найдите все книги, написанные автором с именем "Daniel Miller" и прочитанные читателем с именем "Bob Smith".
+/* SELECT Books.book_title, Authors.author_name, Readers.reader_name
+FROM Books
+JOIN Authors ON Books.author_id = Authors.author_id
+JOIN ReaderBooks ON Books.book_id = ReaderBooks.book_id
+JOIN Readers ON ReaderBooks.reader_id = Readers.reader_id
+WHERE Authors.author_name = 'Daniel Miller' AND Readers.reader_name = 'Bob Smith';
+ */
+--15) Покажите читателя, который прочитал наименьшее количество книг.
+/* SELECT Readers.reader_name, COUNT(ReaderBooks.book_id) AS book_count
+FROM Readers
+LEFT JOIN ReaderBooks ON Readers.reader_id = ReaderBooks.reader_id
+GROUP BY Readers.reader_id, Readers.reader_name
+ORDER BY book_count ASC
+LIMIT 1; */
+--1) Выведите все жанры книг, которые прочитал читатель с именем "Grace Taylor".
+/* SELECT DISTINCT Genres.genre_name
+FROM Genres
+INNER JOIN BookGenres ON Genres.genre_id = BookGenres.genre_id
+INNER JOIN Books ON BookGenres.book_id = Books.book_id
+INNER JOIN ReaderBooks ON Books.book_id = ReaderBooks.book_id
+INNER JOIN Readers ON ReaderBooks.reader_id = Readers.reader_id
+WHERE Readers.reader_name = 'Grace Taylor';
+*/
+
+--2) Найдите авторов, написавших книги в жанре "Фантастика".
+/* SELECT DISTINCT Authors.author_name
+FROM Authors
+INNER JOIN Books ON Authors.author_id = Books.author_id
+INNER JOIN BookGenres ON Books.book_id = BookGenres.book_id
+INNER JOIN Genres ON BookGenres.genre_id = Genres.genre_id
+WHERE Genres.genre_name = 'Fantasy'; */
+
+--3) Покажите книги, написанные авторами с именами "John Smith" и "Jane Doe".
+/* SELECT Books.book_title, Authors.author_name
+FROM Books
+INNER JOIN Authors ON Books.author_id = Authors.author_id
+WHERE Authors.author_name IN ('John Smith', 'Jane Doe'); */
+
+--4) Выведите все книги, у которых нет жанра.
+/* SELECT Books.book_title
+FROM Books
+LEFT JOIN BookGenres ON Books.book_id = BookGenres.book_id
+WHERE BookGenres.book_id IS NULL;
+ */
+
+--5) Найдите читателей, которые прочитали книги хотя бы в двух разных жанрах.
+/* SELECT DISTINCT R.reader_name
+FROM Readers R
+JOIN ReaderBooks RB1 ON R.reader_id = RB1.reader_id
+JOIN BookGenres BG1 ON RB1.book_id = BG1.book_id
+JOIN ReaderBooks RB2 ON R.reader_id = RB2.reader_id
+JOIN BookGenres BG2 ON RB2.book_id = BG2.book_id
+WHERE BG1.genre_id <> BG2.genre_id;  */
+
+--6) Покажите авторов, чьи книги не были прочитаны.
+/* SELECT Authors.author_name
+FROM Authors
+LEFT JOIN Books ON Authors.author_id = Books.author_id
+LEFT JOIN ReaderBooks ON Books.book_id = ReaderBooks.book_id
+WHERE ReaderBooks.reader_id IS NULL; */
+
+
+--7) Выведите читателей, прочитавших книги только в жанре "Фэнтези".
+/* SELECT DISTINCT R.reader_name
+FROM Readers R
+JOIN ReaderBooks RB ON R.reader_id = RB.reader_id
+JOIN Books B ON RB.book_id = B.book_id
+JOIN BookGenres BG ON B.book_id = BG.book_id
+WHERE BG.genre_id = (SELECT genre_id FROM Genres WHERE genre_name = 'Fantasy');
+/
+
+--8) Найдите автора с наибольшим количеством книг в жанре "Детектив".
+/*SELECT author_name
+FROM Authors
+WHERE author_id = (
+    SELECT author_id
+    FROM Books
+    JOIN BookGenres ON Books.book_id = BookGenres.book_id
+    JOIN Genres ON BookGenres.genre_id = Genres.genre_id
+    WHERE Genres.genre_name = 'Детектив'
+    GROUP BY author_id
+    ORDER BY COUNT(Books.book_id) DESC
+    LIMIT 1
+);
+ */
+
+--9) Покажите все книги, написанные в жанре "Научная фантастика", которые еще не прочитаны.
+/* SELECT Books.book_title
+FROM Books
+INNER JOIN BookGenres ON Books.book_id = BookGenres.book_id
+INNER JOIN Genres ON BookGenres.genre_id = Genres.genre_id
+LEFT JOIN ReaderBooks ON Books.book_id = ReaderBooks.book_id
+WHERE Genres.genre_name = 'Science Fiction' AND ReaderBooks.reader_id IS NULL;
+
+ */
+--10) Выведите все книги, которые прочитаны более чем одним читателем.
+/* SELECT DISTINCT B.book_title
+FROM Books B
+JOIN ReaderBooks RB1 ON B.book_id = RB1.book_id
+JOIN ReaderBooks RB2 ON B.book_id = RB2.book_id
+WHERE RB1.reader_id <> RB2.reader_id; */
+
+--1) Обновите имя автора с именем "John Smith" на "John A. Smith"
+/* UPDATE Authors
+SET author_name = 'John A. Smith'
+WHERE author_name = 'John Smith';
+ */
+--2) Удалите все книги в жанре "Мистика"
+/* DELETE FROM Books
+WHERE book_id IN (SELECT book_id FROM BookGenres WHERE genre_id IN (SELECT genre_id FROM Genres WHERE genre_name = 'Mystery'));
+ */
+--3) Измените название книги с именем "The Great Adventure" на "The Amazing 
+/* UPDATE Books
+SET book_title = 'The Amazing Adventure'
+WHERE book_title = 'The Great Adventure'; */
+--4) Удалите все записи из таблицы ReaderBooks, связанные с читателем с именем "Bob Smith"
+/* DELETE FROM ReaderBooks
+WHERE reader_id = (SELECT reader_id FROM Readers WHERE reader_name = 'Bob Smith'); */
+--5) Обновите жанр книги "The Power of Now" на "Self-Help"
+/* UPDATE Genres
+SET genre_name = 'Self-Help'
+WHERE genre_id = (SELECT genre_id FROM BookGenres WHERE book_id = (SELECT book_id FROM Books WHERE book_title = 'The Power of Now'));
+ */
+--6) Удалите автора с наименьшим количеством написанных книг
+/* DELETE FROM Authors
+WHERE author_id = (SELECT author_id FROM Authors ORDER BY (SELECT COUNT(*) FROM Books WHERE Books.author_id = Authors.author_id) ASC LIMIT 1);
+ */
+--7) Обновите имя читателя с именем "Eva White" на "Eva Johnson"
+/* UPDATE Readers
+SET reader_name = 'Eva Johnson'
+WHERE reader_name = 'Eva White'; */
+
+--8) Удалите все книги, написанные автором с именем "Christopher Wilson"
+/* DELETE FROM Books
+WHERE author_id = (SELECT author_id FROM Authors WHERE author_name = 'Christopher Wilson');
+ */
+--9) Измените жанр книги "Moonlight Sonata" на "Romance"
+/* UPDATE Genres
+SET genre_name = 'Romance'
+WHERE genre_id = (SELECT genre_id FROM BookGenres WHERE book_id = (SELECT book_id FROM Books WHERE book_title = 'Moonlight Sonata'));
+ */
+--10) Удалите все записи из таблицы BookGenres, связанные с книгой с именем "To Kill a Mockingbird"
+/* DELETE FROM BookGenres
+WHERE book_id = (SELECT book_id FROM Books WHERE book_title = 'To Kill a Mockingbird');
+ */
